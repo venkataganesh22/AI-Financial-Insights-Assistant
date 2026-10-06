@@ -1,0 +1,17 @@
+Indian Income Tax Basics Overview
+
+Income Tax Regimes in India:
+Taxpayers in India can choose between two tax regimes:
+1. New Tax Regime (Default): Offers lower tax slab rates but removes most deductions and exemptions (except standard deduction of ₹75,000 for salaried employees and employer NPS contribution).
+2. Old Tax Regime: Higher slab rates but allows deductions under Section 80C, 80D, HRA exemption, Home Loan interest, etc.
+
+Key Deductions under Old Tax Regime:
+- Section 80C (up to ₹1.5 Lakh per year): Investments in ELSS Mutual Funds, PPF, EPF, Life Insurance Premium, Principal Repayment of Home Loan, Tuition Fees.
+- Section 80D (up to ₹25,000 to ₹50,000): Health insurance premiums for self, family, and senior citizen parents.
+- Section 80CCD(1B): Additional deduction of up to ₹50,000 for contributions to National Pension System (NPS).
+- House Rent Allowance (HRA): Exemption available to salaried individuals living in rented accommodations.
+
+Tax Filing & Compliance:
+- Financial Year (FY): April 1 to March 31 of the next year.
+- Assessment Year (AY): The year following the financial year in which tax returns are filed (e.g., FY 2024-25 is AY 2025-26).
+- Due date for salaried individuals filing ITR (ITR-1 / ITR-2) is usually July 31.

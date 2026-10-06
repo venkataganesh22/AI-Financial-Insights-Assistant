@@ -1,0 +1,54 @@
+date,description,category,amount,type
+2026-01-01,Monthly Salary from Tech Corp,Salary,75000,income
+2026-01-02,House Rent Payment,Rent,15000,expense
+2026-01-03,DMart Monthly Grocery Shopping,Bills,4500,expense
+2026-01-04,Swiggy Lunch Order,Food,380,expense
+2026-01-05,Electricity Bill TNEB/BESCOM,Bills,1250,expense
+2026-01-06,Airtel Broadband & Mobile Recharge,Bills,999,expense
+2026-01-07,Uber Auto to Office,Transport,180,expense
+2026-01-08,Zomato Dinner with Friends,Food,850,expense
+2026-01-10,Amazon India Shoes & T-shirt,Shopping,3200,expense
+2026-01-11,Blinkit Instant Grocery,Food,420,expense
+2026-01-12,Zepto Snack Order,Food,260,expense
+2026-01-14,Netflix Monthly Subscription,Entertainment,499,expense
+2026-01-15,Spotify Premium Plan,Entertainment,119,expense
+2026-01-16,IRCTC Train Ticket Booking,Transport,1450,expense
+2026-01-18,Apollo Pharmacy Medicines,Healthcare,650,expense
+2026-01-20,Zerodha Nifty 50 Index SIP,Investment,5000,expense
+2026-01-22,Flipkart Electronic Accessories,Shopping,1850,expense
+2026-01-24,Ola Cab Weekend Trip,Transport,640,expense
+2026-01-26,Zomato Republic Day Feast,Food,720,expense
+2026-01-28,BigBasket Weekly Veggies,Bills,890,expense
+2026-01-30,Cafe Coffee Day Evening Coffee,Food,310,expense
+2026-02-01,Monthly Salary from Tech Corp,Salary,75000,income
+2026-02-01,Freelance Project Payment,Freelance income,12000,income
+2026-02-02,House Rent Payment,Rent,15000,expense
+2026-02-03,DMart Supermarket Shopping,Bills,4100,expense
+2026-02-04,Swiggy Gourmet Order,Food,620,expense
+2026-02-05,Croma Appliance Purchase,Shopping,5400,expense
+2026-02-07,Metro Smart Card Recharge,Transport,500,expense
+2026-02-09,Zomato Team Lunch,Food,1150,expense
+2026-02-11,Reliance Digital Earbuds,Shopping,2499,expense
+2026-02-13,Electricity & Water Bill,Bills,1400,expense
+2026-02-14,Valentine Dinner Restaurant,Food,2200,expense
+2026-02-15,Airtel Wifi Bill,Bills,999,expense
+2026-02-18,Uber Ride to Airport,Transport,850,expense
+2026-02-20,Zerodha Nifty 50 Index SIP,Investment,5000,expense
+2026-02-22,PPF Account Contribution,Investment,3000,expense
+2026-02-24,Zepto Quick Grocery,Food,340,expense
+2026-02-26,BookMyShow Movie Tickets,Entertainment,750,expense
+2026-02-28,Blinkit Household Items,Bills,580,expense
+2026-03-01,Monthly Salary from Tech Corp,Salary,75000,income
+2026-03-02,House Rent Payment,Rent,15000,expense
+2026-03-03,DMart Mart Shopping,Bills,4800,expense
+2026-03-05,Amazon Electronics Sale,Shopping,6800,expense
+2026-03-07,Swiggy Daily Lunch,Food,290,expense
+2026-03-09,Ola Auto to Metro,Transport,120,expense
+2026-03-12,Zomato Weekend Dinner,Food,940,expense
+2026-03-15,Jio Fibre Recharge,Bills,899,expense
+2026-03-17,Apollo Medical Checkup,Healthcare,1200,expense
+2026-03-20,Zerodha Nifty 50 Index SIP,Investment,5000,expense
+2026-03-22,UPI Transfer to Friend for Dinner,Food,550,expense
+2026-03-25,Decathlon Sports Gear,Shopping,3100,expense
+2026-03-27,Swiggy Quick Meal,Food,310,expense
+2026-03-29,Blinkit Vegetables,Bills,430,expense

@@ -1,0 +1,20 @@
+{
+  "student@example.com": {
+    "id": "user_student",
+    "name": "Student",
+    "email": "student@example.com",
+    "password_hash": "b757ba35589ee40663e973659dc956fe$51c2ba717f147e9b6fb226cd34bbf75ad64114072b94f90cc8e4f51070033b43"
+  },
+  "rahul@example.com": {
+    "id": "user_rahul",
+    "name": "Rahul",
+    "email": "rahul@example.com",
+    "password_hash": "c33c09c2a1f8a925bb02b2d21374c303$390af576ba2b01ffd7e5ef7d7cd4ea97a16918e3322c32dd3bd5ee9bf6211b12"
+  },
+  "priya@example.com": {
+    "id": "user_priya",
+    "name": "Priya",
+    "email": "priya@example.com",
+    "password_hash": "3dde6a17ce9a4f2e572e184494f6a90c$33c86c7b4ba06b8e10404cbb681aecd3d40788841fd42199d7ce38c96d34fddb"
+  }
+}
