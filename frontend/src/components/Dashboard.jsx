@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, PiggyBank, ShieldAlert, Sparkles, PieChartIcon, BarChart3 } from 'lucide-react';
+import { 
+  DollarSign, TrendingUp, TrendingDown, PiggyBank, 
+  Sparkles, PieChartIcon, BarChart3, Wallet, CreditCard, ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle
+} from 'lucide-react';
 import { CategoryPieChart, MonthlyTrendChart } from './Charts';
 
 export default function Dashboard({ token, apiUrl }) {
@@ -7,84 +10,128 @@ export default function Dashboard({ token, apiUrl }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchAnalysis = async () => {
+  const fetchDashboardData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${apiUrl}/analyze`, {
+      const res = await fetch(`${apiUrl}/dashboard`, {
         headers: {
           'Authorization': token ? `Bearer ${token}` : ''
         }
       });
-      if (!res.ok) throw new Error('Failed to fetch financial analysis');
+      if (!res.ok) throw new Error('Failed to fetch financial dashboard metrics');
       const result = await res.json();
-      setData(result);
+      setData(result.metrics);
     } catch (err) {
       console.error(err);
-      setError('Could not load financial insights. Please ensure transaction CSV is uploaded.');
+      setError('Could not load financial metrics. Please ensure transaction CSV is uploaded.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAnalysis();
+    fetchDashboardData();
   }, [token, apiUrl]);
 
   if (loading) {
     return (
-      <div style={{ padding: '40px', textAlign: 'center', color: '#A1A1A1' }}>
-        <Sparkles size={32} className="animate-spin" color="#3B82F6" style={{ margin: '0 auto 12px' }} />
-        <div>Computing KMeans Clusters and Overspending ML model...</div>
+      <div className="state-container">
+        <Sparkles size={36} className="animate-spin" color="#3B82F6" style={{ margin: '0 auto 16px' }} />
+        <div style={{ fontSize: '1.05rem', fontWeight: 600, color: '#FFF' }}>Loading Dashboard Metrics...</div>
+        <div style={{ fontSize: '0.85rem', color: '#A1A1A1', marginTop: '6px' }}>
+          Calculating cash flows, category totals, and monthly trends
+        </div>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div style={{ padding: '40px', textAlign: 'center', color: '#EF4444' }}>
-        <div>{error || 'No data available'}</div>
+      <div className="state-container error">
+        <AlertCircle size={36} color="#EF4444" style={{ margin: '0 auto 12px' }} />
+        <div style={{ fontWeight: 600, fontSize: '1.1rem' }}>{error || 'No data available'}</div>
+        <button className="retry-btn" onClick={fetchDashboardData}>
+          <RefreshCw size={14} /> Retry
+        </button>
       </div>
     );
   }
 
-  const { metrics, cluster, overspending, bullet_insights } = data;
+  const metrics = data;
+  const categoriesList = Object.entries(metrics.category_breakdown || {}).sort((a, b) => b[1] - a[1]);
 
   return (
     <div className="dashboard-view">
-      {/* Top Metrics Row */}
+      {/* Top Welcome / Header */}
+      <div className="dashboard-header-row">
+        <div>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#FFF' }}>Financial Overview</h2>
+          <p style={{ fontSize: '0.85rem', color: '#A1A1A1', marginTop: '2px' }}>
+            Real-time financial summary, income vs expense tracking, and spending allocation.
+          </p>
+        </div>
+        <div className="total-tx-badge">
+          <CreditCard size={14} />
+          <span>{metrics.total_transactions} Total Transactions</span>
+        </div>
+      </div>
+
+      {/* Top Key Metrics Grid */}
       <div className="metrics-grid">
         <div className="metric-card">
-          <div className="metric-label">Total Income</div>
+          <div className="metric-header">
+            <span className="metric-label">Total Income</span>
+            <div className="metric-icon-bg green">
+              <ArrowUpRight size={18} color="#10B981" />
+            </div>
+          </div>
           <div className="metric-value">₹{metrics.total_income.toLocaleString('en-IN')}</div>
-          <div className="metric-sub" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <TrendingUp size={14} /> Recorded Income
+          <div className="metric-sub green">
+            <TrendingUp size={14} /> Recorded Cash Inflow
           </div>
         </div>
 
         <div className="metric-card">
-          <div className="metric-label">Total Expenses</div>
+          <div className="metric-header">
+            <span className="metric-label">Total Expenses</span>
+            <div className="metric-icon-bg red">
+              <ArrowDownRight size={18} color="#EF4444" />
+            </div>
+          </div>
           <div className="metric-value">₹{metrics.total_expenses.toLocaleString('en-IN')}</div>
-          <div className="metric-sub negative" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <TrendingDown size={14} /> Total Outflow
+          <div className="metric-sub red">
+            <TrendingDown size={14} /> Total Cash Outflow
           </div>
         </div>
 
         <div className="metric-card">
-          <div className="metric-label">Net Savings</div>
+          <div className="metric-header">
+            <span className="metric-label">Net Savings</span>
+            <div className="metric-icon-bg blue">
+              <PiggyBank size={18} color="#3B82F6" />
+            </div>
+          </div>
           <div className="metric-value" style={{ color: metrics.net_savings >= 0 ? '#10B981' : '#EF4444' }}>
             ₹{metrics.net_savings.toLocaleString('en-IN')}
           </div>
-          <div className="metric-sub">
+          <div className="metric-sub neutral">
             Savings Rate: <strong style={{ color: '#FFF' }}>{metrics.savings_rate}%</strong>
           </div>
         </div>
 
         <div className="metric-card">
-          <div className="metric-label">Largest Category</div>
-          <div className="metric-value" style={{ fontSize: '1.2rem' }}>{metrics.largest_category}</div>
-          <div className="metric-sub">
-            ₹{metrics.largest_category_amount.toLocaleString('en-IN')} spent
+          <div className="metric-header">
+            <span className="metric-label">Avg Monthly Outflow</span>
+            <div className="metric-icon-bg purple">
+              <Wallet size={18} color="#8B5CF6" />
+            </div>
+          </div>
+          <div className="metric-value" style={{ fontSize: '1.35rem' }}>
+            ₹{metrics.avg_monthly_spending.toLocaleString('en-IN')}
+          </div>
+          <div className="metric-sub neutral">
+            Largest: <strong style={{ color: '#FFF' }}>{metrics.largest_category}</strong> (₹{metrics.largest_category_amount.toLocaleString('en-IN')})
           </div>
         </div>
       </div>
@@ -92,95 +139,60 @@ export default function Dashboard({ token, apiUrl }) {
       {/* Visual Charts Grid */}
       <div className="charts-grid">
         <div className="chart-card">
-          <div className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <PieChartIcon size={18} color="#3B82F6" />
-            <span>Category Spending Breakdown</span>
+          <div className="chart-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <PieChartIcon size={18} color="#3B82F6" />
+              <span className="chart-title">Category Spending Distribution</span>
+            </div>
           </div>
-          <CategoryPieChart categoryBreakdown={metrics.category_breakdown} />
+          <div className="chart-body">
+            <CategoryPieChart categoryBreakdown={metrics.category_breakdown} />
+          </div>
         </div>
 
         <div className="chart-card">
-          <div className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <BarChart3 size={18} color="#10B981" />
-            <span>Monthly Income vs Expenses</span>
+          <div className="chart-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <BarChart3 size={18} color="#10B981" />
+              <span className="chart-title">Monthly Cash Flow Comparison</span>
+            </div>
           </div>
-          <MonthlyTrendChart monthlyTrends={metrics.monthly_trends} />
+          <div className="chart-body">
+            <MonthlyTrendChart monthlyTrends={metrics.monthly_trends} />
+          </div>
         </div>
       </div>
 
-      {/* ML Persona KMeans Clustering */}
-      <div className="insights-section">
-        <div className="cluster-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkles size={20} color="#3B82F6" />
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>KMeans Spending Behavior Profile</h3>
-            </div>
-            <span className="cluster-tag">{cluster.cluster_name}</span>
-          </div>
-
-          <p style={{ fontSize: '0.9rem', color: '#D1D5DB' }}>
-            {cluster.description}
-          </p>
-
-          <div style={{ fontSize: '0.75rem', color: '#9CA3AF', fontStyle: 'italic', borderTop: '1px solid #333', paddingTop: '8px' }}>
-            Disclaimer: {cluster.disclaimer}
-          </div>
-        </div>
-
-        {/* ML Overspending Alert */}
-        {overspending.overspending_count > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ShieldAlert size={20} color="#EF4444" />
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>ML Overspending Flagged Transactions</h3>
-            </div>
-
-            <div className="overspending-table-wrapper">
-              <table className="overspending-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Category</th>
-                    <th>Amount</th>
-                    <th>Cat. Avg</th>
-                    <th>Reason / Explanation</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {overspending.flagged_transactions.map((tx, idx) => (
-                    <tr key={idx}>
-                      <td>{tx.date}</td>
-                      <td style={{ fontWeight: 600 }}>{tx.description}</td>
-                      <td>{tx.category}</td>
-                      <td style={{ color: '#EF4444', fontWeight: 600 }}>₹{tx.amount.toLocaleString('en-IN')}</td>
-                      <td>₹{tx.category_average.toLocaleString('en-IN')}</td>
-                      <td style={{ fontSize: '0.8rem', color: '#A1A1A1' }}>{tx.reason}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Bullet Key Insights */}
-        <div style={{
-          backgroundColor: '#1C1C1C',
-          border: '1px solid #2A2A2A',
-          borderRadius: '12px',
-          padding: '20px',
-          display: 'flex',
-          flexdirection: 'column',
-          gap: '12px'
-        }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#FFF' }}>Key Financial Insights</h3>
-          <ul style={{ paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.9rem', color: '#D1D5DB' }}>
-            {bullet_insights.map((insight, idx) => (
-              <li key={idx}>{insight}</li>
-            ))}
-          </ul>
+      {/* Breakdown List Section */}
+      <div className="dashboard-section-card">
+        <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#FFF', marginBottom: '16px' }}>
+          Top Expense Categories Breakdown
+        </h3>
+        <div className="categories-progress-list">
+          {categoriesList.map(([catName, amount], idx) => {
+            const percentage = metrics.total_expenses > 0 
+              ? Math.min(Math.round((amount / metrics.total_expenses) * 100), 100) 
+              : 0;
+            return (
+              <div key={idx} className="category-progress-item">
+                <div className="category-info-row">
+                  <span className="cat-name">{catName}</span>
+                  <span className="cat-amount">
+                    ₹{amount.toLocaleString('en-IN')} <span className="cat-pct">({percentage}%)</span>
+                  </span>
+                </div>
+                <div className="progress-track">
+                  <div 
+                    className="progress-fill" 
+                    style={{ 
+                      width: `${percentage}%`,
+                      backgroundColor: idx === 0 ? '#3B82F6' : idx === 1 ? '#10B981' : idx === 2 ? '#F59E0B' : '#8B5CF6'
+                    }} 
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -3,11 +3,13 @@ import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import Chat from '../components/Chat';
 import Dashboard from '../components/Dashboard';
+import MLInsights from '../components/MLInsights';
 import UploadCSV from '../components/UploadCSV';
 
 export default function Home({ user, token, onLogout, apiUrl }) {
   const [activeTab, setActiveTab] = useState('chat');
   const [messages, setMessages] = useState([]);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleNewChat = () => {
     setMessages([]);
@@ -28,34 +30,49 @@ export default function Home({ user, token, onLogout, apiUrl }) {
         onLogout={onLogout}
         user={user}
         onNewChat={handleNewChat}
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
       />
 
       <div className="main-wrapper">
-        <Navbar activeTab={activeTab} user={user} />
+        <Navbar 
+          activeTab={activeTab} 
+          user={user} 
+          onToggleMobileMenu={() => setMobileOpen(prev => !prev)}
+        />
 
-        {activeTab === 'chat' && (
-          <Chat 
-            messages={messages} 
-            setMessages={setMessages} 
-            token={token}
-            apiUrl={apiUrl} 
-          />
-        )}
+        <main className="content-area">
+          {activeTab === 'chat' && (
+            <Chat 
+              messages={messages} 
+              setMessages={setMessages} 
+              token={token}
+              apiUrl={apiUrl} 
+            />
+          )}
 
-        {(activeTab === 'dashboard' || activeTab === 'insights') && (
-          <Dashboard 
-            token={token} 
-            apiUrl={apiUrl} 
-          />
-        )}
+          {activeTab === 'dashboard' && (
+            <Dashboard 
+              token={token} 
+              apiUrl={apiUrl} 
+            />
+          )}
 
-        {activeTab === 'upload' && (
-          <UploadCSV 
-            token={token} 
-            apiUrl={apiUrl} 
-            onUploadSuccess={handleUploadSuccess}
-          />
-        )}
+          {activeTab === 'insights' && (
+            <MLInsights 
+              token={token} 
+              apiUrl={apiUrl} 
+            />
+          )}
+
+          {activeTab === 'upload' && (
+            <UploadCSV 
+              token={token} 
+              apiUrl={apiUrl} 
+              onUploadSuccess={handleUploadSuccess}
+            />
+          )}
+        </main>
       </div>
     </div>
   );
