@@ -1,155 +1,202 @@
-# AI-Powered Financial Insights Assistant
+<div align="center">
 
-An educational, web-based personal finance assistant tailored for **Indian students, young professionals, and salaried individuals**. The application analyzes personal CSV transaction data, clusters spending habits using **KMeans**, detects potential overspending anomalies via a **Machine Learning Classifier**, and answers personal finance questions through a **Retrieval-Augmented Generation (RAG)** chatbot with an Indian financial focus.
+# 💹 AI-Powered Financial Insights Assistant
 
-> **Disclaimer:** This application provides educational financial insights and is NOT a substitute for professional financial advice.
+**A full-stack personal finance platform for Indian users: upload your transactions, discover your spending personality with ML, and ask finance questions through a RAG-powered chatbot.**
 
----
 
-## 🌟 Key Features
+[Features](#-features) · [Architecture](#-architecture) · [Getting Started](#-getting-started) · [API Reference](#-api-reference)
 
-1. **User Authentication & Data Isolation:**
-   - Account registration and login with password hashing (`PBKDF2 HMAC SHA256`).
-   - Isolated user directories (`backend/app/data/transactions/<user_email>/`) ensuring data privacy.
-   - Pre-seeded **DEMO accounts** with sample Indian transaction data.
+</div>
 
-2. **Smart CSV Transaction Upload:**
-   - Tolerant column mapping (`date`, `description`/`merchant`, `category`, `amount`, `type`).
-   - Automatic data cleaning, date parsing, and type standardization (Income vs Expense).
-
-3. **Financial Dashboard & Visual Analytics:**
-   - Formatted in **Indian Rupee (₹ INR)**.
-   - Key Metrics: Total Income, Total Expenses, Net Savings, Savings Rate (%), Largest Category, Average Monthly Spending.
-   - Interactive charts for Category Spending Breakdown and Monthly Income vs. Expenses.
-
-4. **Machine Learning Spending Clustering (KMeans):**
-   - Clusters spending patterns into data-driven personas using `scikit-learn`:
-     - **Essential Spender** (High Rent/Bills ratio)
-     - **Shopping Heavy** (High discretionary retail spend)
-     - **Food & Entertainment Heavy** (High Swiggy/Zomato/Outing spend)
-     - **Balanced Spender** (Well-distributed expenses)
-
-5. **ML Overspending Anomaly Detection:**
-   - Trains a `DecisionTreeClassifier` on synthetic category spending thresholds to flag unusually large expense transactions and explain the deviation.
-
-6. **ChatGPT / Gemini Style RAG Assistant:**
-   - Query Router automatically classifies questions:
-     - `PERSONAL_TRANSACTION_QUERY` → Pandas + ML transaction analysis engine.
-     - `GENERAL_FINANCE_QUERY` → RAG Engine retrieving from educational finance documents (`personal_finance_basics.txt`, `budgeting.txt`, `indian_tax_basics.txt`, `emergency_fund.txt`).
-   - Generates answers via Google Gemini API (or structured educational fallback when offline).
-   - Displays sources cited (e.g., *Sources used: Emergency Fund Guide*).
+> **Disclaimer:** This project is for educational purposes only and is **not** a substitute for professional financial advice.
 
 ---
 
-## 🛠️ Tech Stack
+## 📖 Overview
 
-- **Frontend:** React, JavaScript, HTML5, Vanilla CSS (Dark ChatGPT/Gemini Theme), Recharts, Lucide Icons, Vite
-- **Backend:** Python 3.13, FastAPI, Pydantic, Uvicorn
-- **Data & Machine Learning:** pandas, NumPy, scikit-learn (KMeans, DecisionTreeClassifier)
-- **AI & RAG:** TF-IDF Cosine Vector Store, Document Loader, Google Gemini API
-- **Authentication:** JWT, PBKDF2 Password Hashing
-- **Storage:** Local CSV & JSON storage
-- **Deployment Target:** Render ONLY
+Most budgeting tools are built for Western users and ignore Indian context: UPI payments, Swiggy/Zomato spending, rent-heavy budgets, 80C deductions, and the old vs. new tax regime. This project addresses that gap.
+
+Users upload a CSV of their transactions and get:
+
+- A **dashboard** of key financial metrics in ₹ INR
+- An **ML-driven spending persona** (via KMeans clustering)
+- **Overspending alerts** on unusual transactions (via a Decision Tree classifier)
+- A **chatbot** that answers both personal-data questions and general Indian personal finance questions, with cited sources
 
 ---
 
-## 📁 Project Architecture & Folder Structure
+## ✨ Features
+
+### 🔐 Authentication & Data Isolation
+- Registration and login with **PBKDF2-HMAC-SHA256** password hashing and **JWT** sessions
+- Per-user storage directories (`backend/app/data/transactions/<user_email>/`) so users never see each other's data
+- Pre-seeded demo accounts with realistic Indian transaction data
+
+### 📤 Smart CSV Upload
+- Tolerant column mapping (`date`, `description`/`merchant`, `category`, `amount`, `type`), case-insensitive
+- Automatic cleaning: date parsing, type normalisation (income vs. expense), and invalid row handling
+
+### 📊 Financial Dashboard
+- Total income, total expenses, net savings, savings rate, largest spending category, average monthly spend
+- Interactive Recharts visualisations: category breakdown and monthly income vs. expenses
+
+### 🧠 ML Spending Clustering (KMeans)
+Groups spending patterns into interpretable personas:
+
+| Persona | Signal |
+| :--- | :--- |
+| **Essential Spender** | High share of rent and bills |
+| **Shopping Heavy** | High discretionary retail spend |
+| **Food & Entertainment Heavy** | High Swiggy/Zomato/outings spend |
+| **Balanced Spender** | Evenly distributed expenses |
+
+### 🚨 Overspending Detection (Decision Tree)
+A `DecisionTreeClassifier`, trained on synthetic per-category spending thresholds, flags unusually large expense transactions and explains how far they deviate from the expected range.
+
+### 🤖 Hybrid RAG Chatbot
+A **query router** classifies each question and sends it to the right engine:
+
+| Route | Handled by | Example |
+| :--- | :--- | :--- |
+| `PERSONAL_TRANSACTION_QUERY` | pandas + ML analysis engine | *"How much did I spend on food last month?"* |
+| `GENERAL_FINANCE_QUERY` | RAG pipeline over curated guides | *"How big should my emergency fund be?"* |
+
+- Retrieval uses a **TF-IDF cosine-similarity** vector store over finance documents
+- Answers are generated with the **Google Gemini API**, with a structured offline fallback if the API is unavailable
+- Every RAG answer shows its **sources** (e.g. *Sources used: Emergency Fund Guide*)
+
+---
+
+## 🏗 Architecture
+
+### How It Works
+
+```
+React UI  --(JWT)-->  FastAPI
+                        |
+        +---------------+----------------+----------------+
+        |               |                |                |
+     Auth Service   CSV Upload &     Dashboard        Chatbot Service
+                    Cleaning         Metrics               |
+                        |               |            Query Router
+                        v               v           /             \
+                 User-isolated CSV   ML Engine   Personal          General
+                     storage      (KMeans +     (pandas + ML)    (RAG pipeline)
+                                 Decision Tree)       |                |
+                                                      v                v
+                                              User CSV storage   TF-IDF Vector Store
+                                                                       |
+                                                              Finance guides + Gemini API
+```
+
+1. The React frontend authenticates with the backend and sends a JWT with every request.
+2. Uploaded CSVs are cleaned with pandas and stored in a per-user directory.
+3. The dashboard and analysis endpoints compute metrics and run the KMeans and Decision Tree models on that user's data.
+4. The chatbot's query router decides whether a question is about the user's own transactions or about general finance, and sends it to the matching engine.
+5. General questions go through the RAG pipeline: TF-IDF retrieval over finance guides, then answer generation with Gemini (or an offline fallback), with sources cited.
+
+### Tech Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React, Vite, Recharts, Lucide Icons, vanilla CSS (dark theme) |
+| **Backend** | Python 3.13, FastAPI, Pydantic, Uvicorn |
+| **Data / ML** | pandas, NumPy, scikit-learn (KMeans, DecisionTreeClassifier) |
+| **AI / RAG** | TF-IDF vector store, custom document loader, Google Gemini API |
+| **Auth** | JWT, PBKDF2-HMAC-SHA256 |
+| **Storage** | Local CSV and JSON files |
+| **Deployment** | Render |
+
+<details>
+<summary><b>📁 Project structure</b></summary>
 
 ```
 financial-insights-assistant/
-│
 ├── backend/
 │   ├── app/
-│   │   ├── main.py                # FastAPI main app & CORS configuration
-│   │   ├── config.py              # App config & environment variables
-│   │   │
-│   │   ├── auth/
-│   │   │   ├── auth.py            # Password hashing & JWT token logic
-│   │   │   └── users.json         # JSON user database (pre-seeded demo users)
-│   │   │
-│   │   ├── api/
-│   │   │   ├── auth.py            # POST /auth/login, POST /auth/register
-│   │   │   ├── upload.py          # POST /upload
-│   │   │   ├── analyze.py         # GET /analyze, GET /dashboard
-│   │   │   └── chat.py            # POST /chat
-│   │   │
-│   │   ├── ml/
-│   │   │   ├── clustering.py      # KMeans spending behavior clustering
-│   │   │   ├── overspending.py    # DecisionTree overspending detector
-│   │   │   └── analysis.py        # Insights synthesis generator
-│   │   │
-│   │   ├── rag/
-│   │   │   ├── document_loader.py # Loads & splits .txt finance guides
-│   │   │   ├── vector_store.py    # In-memory TF-IDF vector index
-│   │   │   └── rag_pipeline.py    # RAG pipeline with Gemini API integration
-│   │   │
-│   │   ├── services/
-│   │   │   ├── transaction_service.py # Pandas dataset cleaning & metrics
-│   │   │   └── chatbot_service.py     # Query Router & Chat orchestrator
-│   │   │
-│   │   └── data/
-│   │       ├── transactions/      # User-isolated CSV folders
-│   │       └── documents/         # RAG knowledge files
-│   │
-│   ├── tests/
-│   │   └── test_backend.py        # Pytest test suite for auth, ML, RAG
-│   │
-│   ├── requirements.txt           # Python backend dependencies
-│   └── run.py                     # Entrypoint script
-│
+│   │   ├── main.py                  # FastAPI app & CORS
+│   │   ├── config.py                # Settings & environment variables
+│   │   ├── auth/                    # Password hashing, JWT, users.json
+│   │   ├── api/                     # Route handlers: auth, upload, analyze, chat
+│   │   ├── ml/                      # clustering.py, overspending.py, analysis.py
+│   │   ├── rag/                     # document_loader.py, vector_store.py, rag_pipeline.py
+│   │   ├── services/                # transaction_service.py, chatbot_service.py
+│   │   └── data/                    # transactions/ and documents/
+│   ├── tests/test_backend.py        # Pytest suite (auth, ML, RAG)
+│   ├── requirements.txt
+│   └── run.py
 ├── frontend/
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── Chat.jsx           # ChatGPT style chat container
-│   │   │   ├── Sidebar.jsx        # Navigation sidebar
-│   │   │   ├── Message.jsx        # Chat message bubble & sources badge
-│   │   │   ├── Dashboard.jsx      # Financial metrics & insights view
-│   │   │   ├── UploadCSV.jsx      # CSV drag-and-drop uploader
-│   │   │   ├── Charts.jsx         # Recharts pie & bar components
-│   │   │   └── Navbar.jsx         # Header & disclaimer banner
-│   │   │
-│   │   ├── pages/
-│   │   │   ├── Login.jsx          # Dark login card with demo buttons
-│   │   │   ├── Register.jsx       # Account registration page
-│   │   │   └── Home.jsx           # Main layout page
-│   │   │
-│   │   ├── App.jsx                # State routing & auth persistence
-│   │   ├── main.jsx               # React DOM root
-│   │   └── styles.css             # ChatGPT dark design tokens
-│   │
-│   ├── package.json               # Frontend dependencies
-│   └── vite.config.js             # Vite dev server configuration
-│
-├── sample_data/
-│   └── transactions.csv           # 50+ realistic Indian sample transactions
-│
-├── documents/
-│   ├── personal_finance_basics.txt
-│   ├── budgeting.txt
-│   ├── indian_tax_basics.txt
-│   └── emergency_fund.txt
-│
-├── README.md                      # Documentation & deployment guide
-└── .gitignore                     # Git exclusion rules
+│   │   ├── components/              # Chat, Sidebar, Message, Dashboard, UploadCSV, Charts, Navbar
+│   │   ├── pages/                   # Login, Register, Home
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── styles.css
+│   ├── package.json
+│   └── vite.config.js
+├── sample_data/transactions.csv     # 50+ sample Indian transactions
+├── documents/                       # RAG knowledge base (.txt guides)
+└── README.md
+```
+</details>
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Python 3.13+
+- Node.js 18+
+- A free [Gemini API key](https://aistudio.google.com/) (optional; the app falls back to offline answers without it)
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/venkataganesh22/AI-Financial-Insights-Assistant
+cd AI-Financial-Insights-Assistant
 ```
 
----
+### 2. Configure environment variables
+Create a `.env` file in the project root:
 
-## 🔑 Pre-seeded DEMO Credentials
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+SECRET_KEY=replace_with_a_long_random_string
+VITE_API_URL=http://localhost:8000
+```
 
-For easy testing without registering a new account, use these **DEMO ONLY** accounts:
+> 💡 Generate a strong secret with `python -c "import secrets; print(secrets.token_urlsafe(48))"`.
+> Never commit your `.env` file.
 
-| Role | Email | Password |
+### 3. Run the backend
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+pytest tests/test_backend.py    # optional: run the test suite
+python run.py                   # http://localhost:8000
+```
+
+### 4. Run the frontend
+```bash
+cd frontend
+npm install
+npm run dev                     # http://localhost:3000
+```
+
+### 🔑 Demo Accounts (demo use only)
+
+| Persona | Email | Password |
 | :--- | :--- | :--- |
-| **User 1 (Student)** | `student@example.com` | `Student@123` |
-| **User 2 (Rahul)** | `rahul@example.com` | `Rahul@123` |
-| **User 3 (Priya)** | `priya@example.com` | `Priya@123` |
+| Student | `student@example.com` | `Student@123` |
+| Rahul | `rahul@example.com` | `Rahul@123` |
+| Priya | `priya@example.com` | `Priya@123` |
 
 ---
 
-## 📊 CSV File Format
-
-Expected CSV headers (flexible matching supports lowercase / uppercase variations):
+## 📄 CSV Format
 
 ```csv
 date,description,category,amount,type
@@ -160,149 +207,73 @@ date,description,category,amount,type
 2026-01-10,Amazon India Shopping,Shopping,3200,expense
 ```
 
----
-
-## ⚙️ Environment Variables
-
-Create `.env` file in the root directory:
-
-```env
-# Free Google Gemini API Key (https://aistudio.google.com/)
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Secret key for JWT signing
-SECRET_KEY=finance-insights-super-secret-key-2026
-
-# Frontend API URL (for local dev)
-VITE_API_URL=http://localhost:8000
-```
+A ready-to-use file is available at [`sample_data/transactions.csv`](sample_data/transactions.csv).
 
 ---
 
-## 🚀 Local Installation & Setup
+## 🌐 API Reference
 
-### 1. Backend Setup (FastAPI)
+Interactive docs are available at `/docs` (Swagger UI) when the server is running.
 
-```bash
-# Navigate to backend directory
-cd backend
-
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# Mac/Linux:
-# source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run pytest unit tests
-pytest tests/test_backend.py
-
-# Run FastAPI server
-python run.py
-# Server will start on http://localhost:8000
-```
-
-### 2. Frontend Setup (React + Vite)
-
-```bash
-# Open a new terminal and navigate to frontend directory
-cd frontend
-
-# Install node dependencies
-npm install
-
-# Start Vite development server
-npm run dev
-# Frontend will run on http://localhost:3000
-```
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `POST` | `/auth/register` | ✗ | Register a new user |
+| `POST` | `/auth/login` | ✗ | Authenticate and receive a JWT |
+| `POST` | `/upload` | ✓ | Upload and process a transaction CSV |
+| `GET` | `/dashboard` | ✓ | Summary metrics in ₹ INR |
+| `GET` | `/analyze` | ✓ | KMeans persona and overspending insights |
+| `POST` | `/chat` | ✓ | Chatbot (personal query or RAG) |
+| `GET` | `/health` | ✗ | Health check for Render |
 
 ---
 
-## 🌐 API Endpoints
+## ☁️ Deployment on Render
 
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/auth/login` | Authenticates user & returns JWT token |
-| `POST` | `/auth/register` | Registers new user with hashed password |
-| `POST` | `/upload` | Uploads and processes user transaction CSV |
-| `POST` | `/chat` | Main chatbot endpoint (Transaction query or RAG) |
-| `GET` | `/dashboard` | Summary dashboard metrics in ₹ INR |
-| `GET` | `/analyze` | Complete ML insights (KMeans cluster + overspending) |
-| `GET` | `/health` | Health check endpoint for Render monitoring |
+The app deploys as a **single Render Web Service**: FastAPI serves the built React bundle.
 
----
+1. Push the repository to GitHub.
+2. On [Render](https://render.com), choose **New +** → **Web Service** and connect the repo.
+3. Configure the service:
 
-## 🚀 Render Deployment Guide (Render ONLY)
+   | Setting | Value |
+   | :--- | :--- |
+   | Runtime | Python 3 |
+   | Root Directory | *(leave blank)* |
+   | Build Command | `cd frontend && npm install && npm run build && cd ../backend && pip install -r requirements.txt` |
+   | Start Command | `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
 
-Follow these exact steps to deploy the application on **Render**:
+4. Add environment variables: `GEMINI_API_KEY`, `SECRET_KEY`, `PYTHON_VERSION=3.13.2`.
+5. Deploy, then verify at `https://<your-service>.onrender.com/health`.
 
-### Single Web Service Deployment (Backend + Serving Built React Frontend)
-
-1. **Push your code to GitHub:**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit of AI Financial Insights Assistant"
-   git remote add origin https://github.com/your-username/financial-insights-assistant.git
-   git push -u origin main
-   ```
-
-2. **Build Frontend Bundle (Local or CI):**
-   ```bash
-   cd frontend
-   npm run build
-   # This creates frontend/dist directory which FastAPI automatically serves!
-   ```
-
-3. **Log into Render:**
-   - Go to [render.com](https://render.com) and create a free account.
-
-4. **Create a New Web Service:**
-   - Click **New +** → **Web Service**.
-   - Connect your GitHub repository.
-
-5. **Configure Web Service Settings:**
-   - **Name:** `ai-financial-assistant`
-   - **Environment:** `Python 3`
-   - **Region:** Choose nearest region (e.g. Singapore / Frankfurt).
-   - **Branch:** `main`
-   - **Root Directory:** Leave blank (or set to `backend` if deploying separate services).
-   - **Build Command:**
-     ```bash
-     cd frontend && npm install && npm run build && cd ../backend && pip install -r requirements.txt
-     ```
-   - **Start Command:**
-     ```bash
-     cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
-     ```
-
-6. **Add Environment Variables in Render Dashboard:**
-   - `GEMINI_API_KEY`: `your_actual_gemini_api_key`
-   - `SECRET_KEY`: `your_random_secret_string`
-   - `PYTHON_VERSION`: `3.13.2`
-
-7. **Deploy & Verify:**
-   - Click **Create Web Service**.
-   - Once deployed, visit `https://your-service-name.onrender.com/health` to verify status.
-   - Access the live application URL directly in your browser.
+> ⚠️ **Ephemeral storage:** Render's free tier filesystem resets on restart or redeploy, so uploaded CSVs and registered users are lost. A production version would use PostgreSQL and object storage (e.g. S3).
 
 ---
 
-## ⚠️ Render Ephemeral Storage Notice
+## ⚠️ Limitations & Roadmap
 
-> **Notice:** Render's free Web Service instance filesystem is ephemeral. File modifications or user uploads stored locally in `backend/app/data/transactions/` will reset upon application restart or re-deployment.
-> For production commercial applications, persistent cloud databases (e.g., PostgreSQL / AWS S3) should be integrated. For portfolio and educational demo purposes, local file storage is used.
+**Current limitations**
+- File-based storage (no database), suited to demos rather than production scale
+- The overspending model is trained on synthetic thresholds, not real user data
+- TF-IDF retrieval is keyword-based and can miss semantic matches
+
+**Planned improvements**
+- [ ] Migrate storage to PostgreSQL
+- [ ] Replace TF-IDF with embedding-based semantic retrieval
+- [ ] Support bank-statement PDF import
+- [ ] Budget goals and monthly forecasting
+- [ ] Docker setup and CI via GitHub Actions
 
 ---
 
-## 📝 Resume Bullet Point Example
+## 🤝 Contributing
 
-> **AI-Powered Personal Financial Insights Assistant** | *FastAPI, React, scikit-learn, LangChain, pandas, RAG*
-> - Designed and built a full-stack personal finance platform enabling Indian users to upload CSV transactions and discover spending habits via KMeans clustering and ML decision tree overspending detection.
-> - Implemented a hybrid Chatbot Query Router with a LangChain TF-IDF RAG pipeline and Google Gemini API to answer Indian personal finance queries with cited sources.
-> - Architected user authentication, password security (PBKDF2 HMAC), isolated file storage, and dark UI responsive dashboard deployed on Render.
+Contributions, issues, and feature requests are welcome. Please open an issue to discuss major changes before submitting a pull request.
+
+## 📜 License
+
+Distributed under the MIT License. See `LICENSE` for details.
+
+## 👤 Author
+
+**Guthi Venkata Ganesh**
+
