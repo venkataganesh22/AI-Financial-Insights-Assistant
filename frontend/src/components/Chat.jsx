@@ -68,10 +68,10 @@ export default function Chat({ messages, setMessages, token, apiUrl }) {
   };
 
   const prompts = [
-    "Analyze my spending",
-    "Where did I spend the most?",
-    "Explain my savings",
-    "What is an SIP?"
+    "What are my top 5 highest spendings?",
+    "When did I make transactions to Swiggy?",
+    "How much did I spend on Food?",
+    "What is an emergency fund?"
   ];
 
   return (
@@ -93,7 +93,7 @@ export default function Chat({ messages, setMessages, token, apiUrl }) {
             </div>
             <h2>How can I help with your finances?</h2>
             <p style={{ fontSize: '0.9rem', maxWidth: '480px' }}>
-              Ask questions about your uploaded Indian spending transactions, savings patterns, or general personal finance concepts.
+              Ask questions about your uploaded transactions, dates, merchant spending, or general personal finance concepts.
             </p>
 
             <div className="prompt-suggestions">
@@ -126,7 +126,7 @@ export default function Chat({ messages, setMessages, token, apiUrl }) {
         <div className="chat-input-box">
           <input
             type="text"
-            placeholder="Ask about your spending or personal finance..."
+            placeholder="Ask e.g. 'What are my top spendings?' or 'When did I buy Swiggy?'..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
